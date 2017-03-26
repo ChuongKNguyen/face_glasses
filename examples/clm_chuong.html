@@ -35,7 +35,7 @@
 			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
 			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
 			<input type="file" class="btn" id="files" name="files[]" />
-			<input type="button" class="btn" value="print" onclick="printPositionVal()"></input>
+			<input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input>
 			<p id="convergence"></p>
 			<div id="text">
 				
@@ -101,10 +101,22 @@
 					for (var i = 0; i < posPixel.length-50; i++) {
 				    	document.getElementById('position').innerHTML += "<p> position pixel "+i+" ="+ posPixel[i]+"</p>";
 				    }
-
 				}
 
+				var foreHead, cheekBones, jawLines, faceLength; 
 
+				function calFaceParams(){
+					var posPixel = positionLoop(); 
+					foreHead = pythagorean(Math.floor(posPixel[14][0] - posPixel[0][0]), Math.floor(posPixel[14][1] - posPixel[0][1]));
+					cheekBones= pythagorean(Math.floor(posPixel[28][0] - posPixel[23][0]), Math.floor(posPixel[28][1] - posPixel[23][1]));
+					for (var i = 2; i < 7; i++) {
+						jawLines += pythagorean(Math.floor(posPixel[i+1][0] - posPixel[i][0]), Math.floor(posPixel[i+1][1] - posPixel[i][1]));
+					}
+					var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1]);
+					var xx = posPixel[33][0]; 
+					faceLength = pythagorean(Math.floor(xx - posPixel[7][0]), Math.floor(yx - posPixel[7][1]));
+					//return foreHead, cheekBones, jawLines, faceLength;
+				}
 
 
 
