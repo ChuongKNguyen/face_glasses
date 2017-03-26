@@ -3,61 +3,6 @@
 	<head>
 		<title>Face Tracker</title>
 		<meta charset="utf-8">
-		<style>
-			@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
-
-			body {
-				font-family: 'Lato';
-				background-color: #f0f0f0;
-				margin: 0px auto;
-				max-width: 1150px;
-			}
-			
-			#overlay {
-				position: absolute;
-				top: 0px;
-				left: 0px;
-			}
-
-			#container {
-				position : relative;
-				width : 700px;
-				height : 500px;
-				/*margin : 0px auto;*/
-			}
-
-			#content {
-				margin-top : 70px;
-				margin-left : 100px;
-				margin-right : 100px;
-				max-width: 950px;
-			}
-			
-			#sketch {
-				display: none;
-			}
-			
-			#filter {
-				display: none;
-			}
-
-			#convergence {
-				display : inline;
-			}
-
-			h2 {
-				font-weight : 400;
-			}
-
-			.btn {
-				font-family: 'Lato';
-				font-size: 16px;
-			}
-
-			.hide {
-				display : none;
-			}
-		</style>
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
 			_gaq.push(['_setAccount', 'UA-32642923-1']);
@@ -71,28 +16,14 @@
 		</script>
 	</head>
 	<body>
-		<script src="./ext_js/utils.js"></script>
-		<script src="./ext_js/dat.gui.min.js"></script>
-		<script src="./ext_js/jsfeat-min.js"></script>
-		<script src="./ext_js/frontalface.js"></script>
-		<script src="./ext_js/jsfeat_detect.js"></script>
-		<script src="./ext_js/numeric-1.2.6.min.js"></script>
-		<script src="./ext_js/mosse.js"></script>
-		<script src="./ext_js/left_eye_filter.js"></script>
-		<script src="./ext_js/right_eye_filter.js"></script>
-		<script src="./ext_js/nose_filter.js"></script>
-		<script src="../models/model_pca_20_svm.js"></script>
-		<script src="../js/clm.js"></script>
-		<script src="../js/svmfilter_webgl.js"></script>
-		<script src="../js/svmfilter_fft.js"></script>
-		<script src="../js/mossefilter.js"></script>
-		<script src="./ext_js/Stats.js"></script>
-		
+		<link rel="stylesheet" type="text/css" href="./styles/clm_chuong.css">
 		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
+		<script src="./ext_js/Stats.js"></script> 
 		<script src="./ext_js/jquery.min.js"></script>
 		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
-		<script src="./ext_js/BlobBuilder.min.js"></script>
-		<script src="./ext_js/Filesaver.min.js"></script>
+		<script src="./ext_js/utils.js"></script>
+		<script src="../clmtrackr.js"></script>
+		<script src="../models/model_pca_20_svm.js"></script>
 		
 		<div id="content">
 			<h2>Face tracking in images</h2>
@@ -104,13 +35,12 @@
 			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
 			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
 			<input type="file" class="btn" id="files" name="files[]" />
+			<input type="button" class="btn" value="print" onclick="printPositionVal()"></input>
 			<p id="convergence"></p>
 			<div id="text">
-				<p>This is an example of precise face-tracking in an image using the javascript library <a href="https://github.com/auduno/clmtrackr"><em>clmtrackr</em></a>. To try it out, simply click start.</p>
-				<span id="loadimagetext"><p>To try it out with your own image, choose a file above by clicking "choose file". If the tracking has problems, try selecting the face in the image manually by clicking "manually select face", and click and hold to drag a square around the face in the image.</p></span>
+				
 			</div>
-			<p>The image is from the <a href="http://www-prima.inrialpes.fr/FGnet/data/01-TalkingFace/talking_face.html‎">FG-net Talking Face</a> project</p>
-			<a href="https://github.com/auduno/clmtrackr"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
+			<div id="position"></div>
 
 			<script>
 				var cc = document.getElementById('image').getContext('2d');
@@ -121,8 +51,8 @@
 				img.onload = function() {
 					cc.drawImage(img,0,0,625, 500);
 				};
-				//img.crossOrigin = 'anonymous';
-				img.setAttribute('crossOrigin', '');
+				
+				img.setAttribute('crossOrigin', ''); //CNG
 				img.src = './media/franck_02159.jpg';
 				var ctrack = new clm.tracker({stopOnConvergence : true});
 				ctrack.init(pModel);
@@ -152,6 +82,32 @@
 					}
 				}
 				
+				// CNG
+				function pythagorean(sideA, sideB){
+					return Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2));
+				}
+
+				function positionLoop() {
+				    requestAnimationFrame(positionLoop);
+				    var positions = ctrack.getCurrentPosition();
+				    // positions = [[x_0, y_0], [x_1,y_1], ... ]
+				    // do something with the positions ...
+				    return positions; 	
+				    
+				}
+
+				function printPositionVal(){
+					var posPixel = positionLoop(); 
+					for (var i = 0; i < posPixel.length-50; i++) {
+				    	document.getElementById('position').innerHTML += "<p> position pixel "+i+" ="+ posPixel[i]+"</p>";
+				    }
+
+				}
+
+
+
+
+
 				// detect if tracker fails to find a face
 				document.addEventListener("clmtrackrNotFound", function(event) {
 					ctrack.stop();
