@@ -34,8 +34,9 @@
 			<br/>
 			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
 			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
-			<input type="file" class="btn" id="files" name="files[]" />
-			<input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input>
+			<input type="file" class="btn" id="files" name="files[]" /><br/>
+			<input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input><br/>
+			<input type="button" class="btn" value="Face Params" onclick="printFaceParams()"> Calcul face parameters</input>
 			<p id="convergence"></p>
 			<div id="text">
 				
@@ -116,10 +117,16 @@
 					var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1]);
 					var xx = posPixel[33][0]; 
 					faceLength = pythagorean(Math.floor(xx - posPixel[7][0]), Math.floor(yx - posPixel[7][1]));
-					//return foreHead, cheekBones, jawLines, faceLength;
+					return {foreHead:foreHead, cheekBones:cheekBones, jawLines:jawLines, faceLength:faceLength};
 				}
-
-
+				function printFaceParams(){
+					var faceParams = calFaceParams(); 
+					console.log("foreHead :"+faceParams.foreHead); 
+					console.log("cheekBones :"+faceParams.cheekBones); 
+					console.log("jawLines :"+faceParams.jawLines); 
+					console.log("faceLength :"+faceParams.faceLength);
+				}
+				
 
 				// detect if tracker fails to find a face
 				document.addEventListener("clmtrackrNotFound", function(event) {
