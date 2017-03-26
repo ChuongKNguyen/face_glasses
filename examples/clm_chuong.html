@@ -103,14 +103,15 @@
 				    }
 				}
 
-				var foreHead, cheekBones, jawLines, faceLength; 
-
+				var foreHead, cheekBones, faceLength; 
+				var jawLines = 0;
 				function calFaceParams(){
 					var posPixel = positionLoop(); 
 					foreHead = pythagorean(Math.floor(posPixel[14][0] - posPixel[0][0]), Math.floor(posPixel[14][1] - posPixel[0][1]));
 					cheekBones= pythagorean(Math.floor(posPixel[28][0] - posPixel[23][0]), Math.floor(posPixel[28][1] - posPixel[23][1]));
 					for (var i = 2; i < 7; i++) {
-						jawLines += pythagorean(Math.floor(posPixel[i+1][0] - posPixel[i][0]), Math.floor(posPixel[i+1][1] - posPixel[i][1]));
+						var temp = pythagorean(Math.floor(posPixel[i+1][0] - posPixel[i][0]), Math.floor(posPixel[i+1][1] - posPixel[i][1]));
+						jawLines += temp;
 					}
 					var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1]);
 					var xx = posPixel[33][0]; 
