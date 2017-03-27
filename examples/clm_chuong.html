@@ -28,9 +28,10 @@
 		<div id="content">
 			<h2>Face tracking in images</h2>
 			<div id="container">
-				<canvas id="image" width="625" height="500"></canvas>
-				<canvas id="overlay" width="625" height="500"></canvas>
+				<canvas id="image" width="625" height="500" style="border:solid 2px red"></canvas>
+				<canvas id="overlay" width="625" height="500" style="border:solid 2px blue"></canvas>
 			</div>
+			<p> Please select manually the the centre of your hairline! </p>
 			<br/>
 			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
 			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
@@ -54,7 +55,7 @@
 				};
 				
 				img.setAttribute('crossOrigin', ''); //CNG
-				img.src = './media/franck_02159.jpg';
+				img.src = './media/audrey.jpg';
 				var ctrack = new clm.tracker({stopOnConvergence : true});
 				ctrack.init(pModel);
 			
@@ -84,6 +85,28 @@
 				}
 				
 				// CNG
+				var mouseX, mouseY;
+				overlay.addEventListener("mouseup", mouseUp, false);
+				function drawX(x, y) {
+					overlayCC.strokeStyle="green";
+				    overlayCC.moveTo(x - 10, y - 10);
+				    overlayCC.lineTo(x + 10, y + 10);
+				    overlayCC.stroke();
+				    overlayCC.moveTo(x + 10, y - 10);
+				    overlayCC.lineTo(x - 10, y + 10);
+				    overlayCC.stroke();
+				}
+				console.log(overlay.offsetLeft);
+				console.log(overlay.offsetTop);
+
+				function mouseUp(e) {
+				    mouseX = e.pageX - overlay.offsetLeft;
+				    mouseY = e.pageY - overlay.offsetTop;
+				    drawX(mouseX, mouseY);
+				    console.log(e.pageX, e.pageY);
+				    console.log(mouseX, mouseY);
+				}
+
 				function pythagorean(sideA, sideB){
 					return Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2));
 				}
@@ -114,7 +137,7 @@
 						var temp = pythagorean(Math.floor(posPixel[i+1][0] - posPixel[i][0]), Math.floor(posPixel[i+1][1] - posPixel[i][1]));
 						jawLines += temp;
 					}
-					var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1]);
+					var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1],posPixel[33][1]);
 					var xx = posPixel[33][0]; 
 					faceLength = pythagorean(Math.floor(xx - posPixel[7][0]), Math.floor(yx - posPixel[7][1]));
 					return {foreHead:foreHead, cheekBones:cheekBones, jawLines:jawLines, faceLength:faceLength};
