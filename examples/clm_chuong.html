@@ -18,7 +18,7 @@
 	<body>
 		<link rel="stylesheet" type="text/css" href="./styles/clm_chuong.css">
 		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
-		<script src="./ext_js/Stats.js"></script> 
+		<!-- <script src="./ext_js/Stats.js"></script>  -->
 		<script src="./ext_js/jquery.min.js"></script>
 		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
 		<script src="./ext_js/utils.js"></script>
@@ -26,10 +26,12 @@
 		<script src="../models/model_pca_20_svm.js"></script>
 		
 		<div id="content">
+			
 			<h2>Face tracking in images</h2>
 			<div id="container">
 				<canvas id="image" width="625" height="500" style="border:solid 2px red"></canvas>
 				<canvas id="overlay" width="625" height="500" style="border:solid 2px blue"></canvas>
+				<canvas id="overlay1" width="100" height="100" style="border:solid 2px green"></canvas>
 			</div>
 			<p> Please select manually the the centre of your hairline! </p>
 			<br/>
@@ -48,7 +50,10 @@
 				var cc = document.getElementById('image').getContext('2d');
 				var overlay = document.getElementById('overlay');
 				var overlayCC = overlay.getContext('2d');
-			
+				var overlay1 = document.getElementById('overlay1');
+				var overlayCC1 = overlay1.getContext('2d');
+				var offsets = document.getElementById('container').getBoundingClientRect(); //offsets of container div
+
 				var img = new Image();
 				img.onload = function() {
 					cc.drawImage(img,0,0,625, 500);
@@ -59,10 +64,10 @@
 				var ctrack = new clm.tracker({stopOnConvergence : true});
 				ctrack.init(pModel);
 			
-				stats = new Stats();
-				stats.domElement.style.position = 'absolute';
-				stats.domElement.style.top = '0px';
-				document.getElementById('container').appendChild( stats.domElement );
+				// stats = new Stats();
+				// stats.domElement.style.position = 'absolute';
+				// stats.domElement.style.top = '0px';
+				// document.getElementById('container').appendChild( stats.domElement );
 				
 				var drawRequest;
 				
@@ -86,22 +91,22 @@
 				
 				// CNG
 				var mouseX, mouseY;
-				overlay.addEventListener("mouseup", mouseUp, false);
+				overlay1.addEventListener("mouseup", mouseUp, false);
 				function drawX(x, y) {
-					overlayCC.strokeStyle="green";
-				    overlayCC.moveTo(x - 10, y - 10);
-				    overlayCC.lineTo(x + 10, y + 10);
-				    overlayCC.stroke();
-				    overlayCC.moveTo(x + 10, y - 10);
-				    overlayCC.lineTo(x - 10, y + 10);
-				    overlayCC.stroke();
+					overlayCC1.strokeStyle="green";
+				    overlayCC1.moveTo(x - 10, y - 10);
+				    overlayCC1.lineTo(x + 10, y + 10);
+				    overlayCC1.stroke();
+				    overlayCC1.moveTo(x + 10, y - 10);
+				    overlayCC1.lineTo(x - 10, y + 10);
+				    overlayCC1.stroke();
 				}
-				console.log(overlay.offsetLeft);
-				console.log(overlay.offsetTop);
+				console.log(overlay1.offsetLeft);
+				console.log(overlay1.offsetTop);
 
 				function mouseUp(e) {
-				    mouseX = e.pageX - overlay.offsetLeft;
-				    mouseY = e.pageY - overlay.offsetTop;
+				    mouseX = e.pageX - overlay1.offsetLeft - offsets.left;
+				    mouseY = e.pageY - overlay1.offsetTop - offsets.top;
 				    drawX(mouseX, mouseY);
 				    console.log(e.pageX, e.pageY);
 				    console.log(mouseX, mouseY);
@@ -172,9 +177,9 @@
 				}, false);
 				
 				// update stats on iteration
-				document.addEventListener("clmtrackrIteration", function(event) {
-					stats.update();
-				}, false);
+				// document.addEventListener("clmtrackrIteration", function(event) {
+				// 	stats.update();
+				// }, false);
 
 				// manual selection of faces (with jquery imgareaselect plugin)
 				function selectBox() {
