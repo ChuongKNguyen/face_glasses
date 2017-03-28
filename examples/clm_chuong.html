@@ -33,14 +33,18 @@
 				<canvas id="overlay" width="625" height="500" style="border:solid 2px blue"></canvas>
 				<canvas id="overlay1" width="625" height="500" style="border:solid 2px green"></canvas>
 			</div>
-			<p> Please select manually the the centre of your hairline! </p>
-			<br/>
-			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
-			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
+			<h5>1.Load your photo</h5>
 			<input type="file" class="btn" id="files" name="files[]" /><br/>
-			<input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input><br/>
-			<input type="button" class="btn" value="Face Params" onclick="printFaceParams()"> Calcul face parameters</input>
+			<h5>2.Start to detect your face features</h5>
+			<input type="button" class="btn" value="start" onclick="animateClean()"></input>
 			<p id="convergence"></p>
+			<h5>3.If our algorithm fails to detect your face features, manually select your face</h5>
+			<input type="button" class="btn" value="manually select face" onclick="selectBox()"></input>
+			<h5>4.Please select manually the the centre of your hairline! </h5>
+			<h5>5.Calcul face parameters</h5>
+			<input type="button" class="btn" value="Face Params" onclick="printFaceParams()"> </input>
+			<br/>
+			<!-- <input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input><br/> -->
 			<div id="text">
 				
 			</div>
@@ -52,7 +56,7 @@
 				var overlayCC = overlay.getContext('2d');
 				var overlay1 = document.getElementById('overlay1');
 				var overlayCC1 = overlay1.getContext('2d');
-				var offsets = document.getElementById('container').getBoundingClientRect(); //offsets of container div
+				var offsets = document.getElementById('overlay1').getBoundingClientRect(); //offsets of container div
 
 				var img = new Image();
 				img.onload = function() {
@@ -60,7 +64,7 @@
 				};
 				
 				img.setAttribute('crossOrigin', ''); //CNG
-				img.src = './media/audrey.jpg';
+				img.src = './media/yourfacehere.jpg';
 				var ctrack = new clm.tracker({stopOnConvergence : true});
 				ctrack.init(pModel);
 			
@@ -69,8 +73,7 @@
 				// stats.domElement.style.top = '0px';
 				// document.getElementById('container').appendChild( stats.domElement );
 				
-				var drawRequest;
-				
+				var drawRequest;	
 				function animateClean() {
 					ctrack.start(document.getElementById('image'));
 					drawLoop();
@@ -90,6 +93,12 @@
 				}
 				
 				// CNG
+				document.getElementById('files').onclick = function() {
+				    var imageLink = document.getElementById('files').value;
+				    if (imageLink != "" ) {
+				        location.reload();
+				    }
+				}
 				var mouseX, mouseY;
 				overlay1.addEventListener("mouseup", mouseUp, false);
 				function drawX(x, y) {
@@ -107,6 +116,7 @@
 				    mouseY = Math.floor(e.pageY - overlay1.offsetTop - offsets.top);
 				    drawX(mouseX, mouseY);
 				   	console.log(mouseX, mouseY);
+				   	e.target.removeEventListener(e.type, arguments.callee);
 				}
 
 				function pythagorean(sideA, sideB){
