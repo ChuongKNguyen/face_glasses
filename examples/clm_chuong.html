@@ -152,6 +152,14 @@
 					console.log("faceLength :"+faceParams.faceLength);
 				}
 				
+				function classifyFace(){
+					var faceParams = calFaceParams(); 
+					foreHead = faceParams.foreHead;
+					cheekBones = faceParams.cheekBones;
+					jawLines = faceParams.jawLines;
+					faceLength = faceParams.faceLength; 
+
+				}
 
 				// detect if tracker fails to find a face
 				document.addEventListener("clmtrackrNotFound", function(event) {
