@@ -19,6 +19,7 @@
 		<link rel="stylesheet" type="text/css" href="./styles/clm_chuong.css">
 		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
 		<!-- <script src="./ext_js/Stats.js"></script>  -->
+		<script src="./ext_js/math.min.js" type="text/javascript"></script>
 		<script src="./ext_js/jquery.min.js"></script>
 		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
 		<script src="./ext_js/utils.js"></script>
@@ -51,6 +52,7 @@
 			<div id="position"></div>
 
 			<script>
+				
 				var cc = document.getElementById('image').getContext('2d');
 				var overlay = document.getElementById('overlay');
 				var overlayCC = overlay.getContext('2d');
@@ -160,14 +162,24 @@
 					console.log("cheekBones :"+faceParams.cheekBones); 
 					console.log("jawLines :"+faceParams.jawLines); 
 					console.log("faceLength :"+faceParams.faceLength);
+					console.log("math.median :"+math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
+					console.log("math.mean :"+math.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
 				}
-				
+				var typeFace;
 				function classifyFace(){
 					var faceParams = calFaceParams(); 
 					foreHead = faceParams.foreHead;
 					cheekBones = faceParams.cheekBones;
 					jawLines = faceParams.jawLines;
 					faceLength = faceParams.faceLength; 
+					var maxParams = Math.max(foreHead,cheekBones,jawLines,faceLength); 
+					var minParams = Math.min(foreHead,cheekBones,jawLines,faceLength); 
+
+					// if (maxParams == faceLength){
+					// 	if (){
+
+					// 	}
+					// }
 
 				}
 
