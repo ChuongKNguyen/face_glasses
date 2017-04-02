@@ -44,6 +44,8 @@
 			<h5>4.Please select manually the the centre of your hairline! </h5>
 			<h5>5.Calcul face parameters</h5>
 			<input type="button" class="btn" value="Face Params" onclick="printFaceParams()"> </input>
+			<h5>6.Classify your face</h5>
+			<input type="button" class="btn" value="Face Params" onclick="classifyFace()"> </input>
 			<br/>
 			<!-- <input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input><br/> -->
 			<div id="text">
@@ -165,6 +167,14 @@
 					console.log("math.median :"+math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
 					console.log("math.mean :"+math.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
 				}
+
+				function percentOf(number,percent){
+					var number = number;
+					var percent = percent; 
+					var result = number * percent /100; 
+					return result;
+				}
+
 				var typeFace;
 				function classifyFace(){
 					var faceParams = calFaceParams(); 
@@ -172,16 +182,38 @@
 					cheekBones = faceParams.cheekBones;
 					jawLines = faceParams.jawLines;
 					faceLength = faceParams.faceLength; 
+					var diff1  = Math.abs(faceLength - cheekBones);
+					var diff2 = Math.abs(foreHead - jawLines); 
 					var maxParams = Math.max(foreHead,cheekBones,jawLines,faceLength); 
-					var minParams = Math.min(foreHead,cheekBones,jawLines,faceLength); 
-					var meanParams = math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead); 
-					var mmath.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead);
+					var median4 = math.median(faceLength,jawLines,cheekBones,foreHead);
+					var median3 = math.median(jawLines,cheekBones,foreHead);
+					var mean4 = math.mean(faceLength,jawLines,cheekBones,foreHead);
+					var foreHeadDiff = median4 - foreHead;
+					var cheekBonesDiff = median4 - cheekBones;
+					var jawLinesDiff = median4 - jawLines;
+					var faceLengthDiff = median4 - faceLength; 
+
+					if ((foreHeadDiff <= percentOf(median4,10)) && (cheekBonesDiff <= percentOf(median4,10)) && (jawLinesDiff <= percentOf(median4,10)) && (faceLengthDiff <= percentOf(median4,10))){
+						typeFace = "Square";
+					}
 
 					if (maxParams == faceLength){
-						if (){
-
+						if ((foreHeadDiff <= percentOf(median3,10)) && (cheekBonesDiff <= percentOf(median3,10)) && (jawLinesDiff <= percentOf(median3,10))){
+							typeFace = "Rectangle";
 						}
 					}
+
+					if ((faceLength > cheekBones)&&(foreHead > jawLines)){
+						typeFace = "Oval";
+					}
+
+					if ((diff1 < percentOf(Math.min(faceLength,cheekBones,10))) && (diff2  < percentOf(Math.min(foreHead,jawLines,10)))) {
+						if (diff1 > diff2){
+							typeFace = "Round";
+						}
+					}
+
+					console.log(typeFace);
 
 				}
 
