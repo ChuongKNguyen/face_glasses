@@ -146,6 +146,7 @@
 				var foreHead, cheekBones, faceLength; 
 				var jawLines = 0;
 				function calFaceParams(){
+					jawLines = 0;
 					var posPixel = positionLoop(); 
 					foreHead = pythagorean(Math.floor(posPixel[14][0] - posPixel[0][0]), Math.floor(posPixel[14][1] - posPixel[0][1]));
 					cheekBones= pythagorean(Math.floor(posPixel[28][0] - posPixel[23][0]), Math.floor(posPixel[28][1] - posPixel[23][1]));
@@ -164,8 +165,10 @@
 					console.log("cheekBones :"+faceParams.cheekBones); 
 					console.log("jawLines :"+faceParams.jawLines); 
 					console.log("faceLength :"+faceParams.faceLength);
-					console.log("math.median :"+math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
-					console.log("math.mean :"+math.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
+					console.log("math.median4 :"+math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
+					console.log("math.median3 :"+math.median(faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
+					console.log("math.mean4 :"+math.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
+					console.log("math.mean3 :"+math.mean(faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
 				}
 
 				function percentOf(number,percent){
@@ -187,18 +190,18 @@
 					var maxParams = Math.max(foreHead,cheekBones,jawLines,faceLength); 
 					var median4 = math.median(faceLength,jawLines,cheekBones,foreHead);
 					var median3 = math.median(jawLines,cheekBones,foreHead);
-					var mean4 = math.mean(faceLength,jawLines,cheekBones,foreHead);
-					var foreHeadDiff = median4 - foreHead;
-					var cheekBonesDiff = median4 - cheekBones;
-					var jawLinesDiff = median4 - jawLines;
-					var faceLengthDiff = median4 - faceLength; 
+					var mean3 = math.mean(jawLines,cheekBones,foreHead);
+					var foreHeadDiff = Math.abs(median4 - foreHead);
+					var cheekBonesDiff = Math.abs(median4 - cheekBones);
+					var jawLinesDiff = Math.abs(median4 - jawLines);
+					var faceLengthDiff = Math.abs(median4 - faceLength); 
 
 					if ((foreHeadDiff <= percentOf(median4,10)) && (cheekBonesDiff <= percentOf(median4,10)) && (jawLinesDiff <= percentOf(median4,10)) && (faceLengthDiff <= percentOf(median4,10))){
 						typeFace = "Square";
 					}
 
 					if (maxParams == faceLength){
-						if ((foreHeadDiff <= percentOf(median3,10)) && (cheekBonesDiff <= percentOf(median3,10)) && (jawLinesDiff <= percentOf(median3,10))){
+						if ((foreHeadDiff <= percentOf(mean3,10)) && (cheekBonesDiff <= percentOf(mean3,10)) && (jawLinesDiff <= percentOf(mean3,10))){
 							typeFace = "Rectangle";
 						}
 					}
@@ -221,12 +224,14 @@
 				document.addEventListener("clmtrackrNotFound", function(event) {
 					ctrack.stop();
 					alert("The tracking had problems with finding a face in this image. Try selecting the face in the image manually.")
+					$('#overlay1').addClass('hide');
 				}, false);
 				
 				// detect if tracker loses tracking of face
 				document.addEventListener("clmtrackrLost", function(event) {
 					ctrack.stop();
 					alert("The tracking had problems converging on a face in this image. Try selecting the face in the image manually.")
+					$('#overlay1').addClass('hide');
 				}, false);
 				
 				// detect if tracker has converged
@@ -244,6 +249,9 @@
 
 				// manual selection of faces (with jquery imgareaselect plugin)
 				function selectBox() {
+					// overlay1.removeEventListener("mouseup", mouseUp, false);
+					$('#overlay1').addClass('hide');
+					console.log("remove overlay1")
 					overlayCC.clearRect(0, 0, 720, 576);
 					document.getElementById('convergence').innerHTML = "";
 					ctrack.reset();
@@ -257,6 +265,7 @@
 							// do fitting
 							animate(box);
 							$('#overlay').removeClass('hide');
+							$('#overlay1').removeClass('hide');
 						},
 						autoHide : true
 					});
