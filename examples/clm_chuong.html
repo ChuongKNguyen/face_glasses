@@ -196,28 +196,40 @@
 					var jawLinesDiff = Math.abs(median4 - jawLines);
 					var faceLengthDiff = Math.abs(median4 - faceLength); 
 
-					if ((foreHeadDiff <= percentOf(median4,10)) && (cheekBonesDiff <= percentOf(median4,10)) && (jawLinesDiff <= percentOf(median4,10)) && (faceLengthDiff <= percentOf(median4,10))){
+					var foreHeadDiff3 = Math.abs(mean3 - foreHead);
+					var cheekBonesDiff3 = Math.abs(mean3 - cheekBones);
+					var jawLinesDiff3 = Math.abs(mean3 - jawLines);
+
+					if ((foreHeadDiff <= percentOf(median4,25)) && (cheekBonesDiff <= percentOf(median4,25)) && (jawLinesDiff <= percentOf(median4,25)) && (faceLengthDiff <= percentOf(median4,25))){
 						typeFace = "Square";
+						console.log("Square");
+						//return typeFace;
 					}
 
-					if (maxParams == faceLength){
-						if ((foreHeadDiff <= percentOf(mean3,10)) && (cheekBonesDiff <= percentOf(mean3,10)) && (jawLinesDiff <= percentOf(mean3,10))){
+					else if ((faceLength > cheekBones)&&(foreHead > jawLines)){
+						typeFace = "Oval";
+						console.log("Oval")
+						//return typeFace;
+					}
+
+					else if (maxParams == faceLength){
+						console.log("maxParams == faceLength");
+						if ((foreHeadDiff3 <= percentOf(mean3,20)) && (cheekBonesDiff3 <= percentOf(mean3,20)) && (jawLinesDiff3 <= percentOf(mean3,20))){
 							typeFace = "Rectangle";
+							console.log("Rectangle");
+							//return typeFace;
 						}
 					}
 
-					if ((faceLength > cheekBones)&&(foreHead > jawLines)){
-						typeFace = "Oval";
-					}
 
-					if ((diff1 < percentOf(Math.min(faceLength,cheekBones,10))) && (diff2  < percentOf(Math.min(foreHead,jawLines,10)))) {
+					else if ((diff1 < percentOf(Math.min(faceLength,cheekBones),25)) && (diff2  < percentOf(Math.min(foreHead,jawLines),25))) {
 						if (diff1 > diff2){
 							typeFace = "Round";
+							console.log("Round");
+							//return typeFace;
 						}
 					}
-
 					console.log(typeFace);
-
 				}
 
 				// detect if tracker fails to find a face
