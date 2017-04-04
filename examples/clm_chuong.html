@@ -19,7 +19,7 @@
 		<link rel="stylesheet" type="text/css" href="./styles/clm_chuong.css">
 		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
 		<!-- <script src="./ext_js/Stats.js"></script>  -->
-		<script src="./ext_js/math.min.js" type="text/javascript"></script>
+		<script src="./ext_js/math.min.js" type="text/javascript"></script> 
 		<script src="./ext_js/jquery.min.js"></script>
 		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
 		<script src="./ext_js/utils.js"></script>
@@ -143,13 +143,23 @@
 				    }
 				}
 
-				var foreHead, cheekBones, faceLength; 
-				var jawLines = 0;
+				function angle(cx, cy, ex, ey) {
+					var dy = ey - cy;
+					var dx = ex - cx;
+					//var theta = Math.atan2(dy, dx); // range (-PI, PI]
+					var theta = Math.atan2(dy, dx);
+					theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+					//if (theta < 0) theta = 360 + theta; // range [0, 360)
+					return theta;
+				}
+
+				var foreHead, cheekBones, faceLength, jawLines, jawAngle; 
 				function calFaceParams(){
 					jawLines = 0;
 					var posPixel = positionLoop(); 
 					foreHead = pythagorean(Math.floor(posPixel[14][0] - posPixel[0][0]), Math.floor(posPixel[14][1] - posPixel[0][1]));
-					cheekBones= pythagorean(Math.floor(posPixel[28][0] - posPixel[23][0]), Math.floor(posPixel[28][1] - posPixel[23][1]));
+					cheekBones= pythagorean(Math.floor(math.mean(posPixel[28][0],posPixel[14][0]) - math.mean(posPixel[23][0],posPixel[0][0])), Math.floor(math.mean(posPixel[28][1],posPixel[14][1]) - math.mean(posPixel[23][1],posPixel[0][1])));
+					jawAngle = Math.floor(angle(posPixel[3][0],posPixel[3][1],posPixel[4][0],posPixel[4][1]));
 					for (var i = 2; i < 7; i++) {
 						var temp = pythagorean(Math.floor(posPixel[i+1][0] - posPixel[i][0]), Math.floor(posPixel[i+1][1] - posPixel[i][1]));
 						jawLines += temp;
@@ -157,7 +167,7 @@
 					// var yx = Math.min(posPixel[15][1],posPixel[16][1],posPixel[17][1],posPixel[18][1],posPixel[19][1],posPixel[20][1],posPixel[21][1],posPixel[22][1],posPixel[33][1]);
 					// var xx = posPixel[33][0]; 
 					faceLength = pythagorean(Math.floor(mouseX - posPixel[7][0]), Math.floor(mouseY - posPixel[7][1]));
-					return {foreHead:foreHead, cheekBones:cheekBones, jawLines:jawLines, faceLength:faceLength};
+					return {foreHead:foreHead, cheekBones:cheekBones, jawLines:jawLines, faceLength:faceLength, jawAngle: jawAngle};
 				}
 				function printFaceParams(){
 					var faceParams = calFaceParams(); 
@@ -165,6 +175,7 @@
 					console.log("cheekBones :"+faceParams.cheekBones); 
 					console.log("jawLines :"+faceParams.jawLines); 
 					console.log("faceLength :"+faceParams.faceLength);
+					console.log("jawAngle :"+faceParams.jawAngle);
 					console.log("math.median4 :"+math.median(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
 					console.log("math.median3 :"+math.median(faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));
 					console.log("math.mean4 :"+math.mean(faceParams.faceLength,faceParams.jawLines,faceParams.cheekBones,faceParams.foreHead));	
@@ -178,13 +189,18 @@
 					return result;
 				}
 
+				function round(value, decimals) {
+					return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+				}
+
 				var typeFace;
 				function classifyFace(){
 					var faceParams = calFaceParams(); 
 					foreHead = faceParams.foreHead;
 					cheekBones = faceParams.cheekBones;
 					jawLines = faceParams.jawLines;
-					faceLength = faceParams.faceLength; 
+					faceLength = faceParams.faceLength;
+					jawAngle = faceParams.jawAngle; 
 					var diff1  = Math.abs(faceLength - cheekBones);
 					var diff2 = Math.abs(foreHead - jawLines); 
 					var maxParams = Math.max(foreHead,cheekBones,jawLines,faceLength); 
@@ -196,40 +212,89 @@
 					var jawLinesDiff = Math.abs(median4 - jawLines);
 					var faceLengthDiff = Math.abs(median4 - faceLength); 
 
-					var foreHeadDiff3 = Math.abs(mean3 - foreHead);
-					var cheekBonesDiff3 = Math.abs(mean3 - cheekBones);
-					var jawLinesDiff3 = Math.abs(mean3 - jawLines);
+					var foreHeadDiff3 = Math.abs(median3 - foreHead);
+					var cheekBonesDiff3 = Math.abs(median3 - cheekBones);
+					var jawLinesDiff3 = Math.abs(median3 - jawLines);
 
-					if ((foreHeadDiff <= percentOf(median4,25)) && (cheekBonesDiff <= percentOf(median4,25)) && (jawLinesDiff <= percentOf(median4,25)) && (faceLengthDiff <= percentOf(median4,25))){
-						typeFace = "Square";
-						console.log("Square");
-						//return typeFace;
-					}
 
-					else if ((faceLength > cheekBones)&&(foreHead > jawLines)){
-						typeFace = "Oval";
-						console.log("Oval")
-						//return typeFace;
-					}
-
-					else if (maxParams == faceLength){
-						console.log("maxParams == faceLength");
-						if ((foreHeadDiff3 <= percentOf(mean3,20)) && (cheekBonesDiff3 <= percentOf(mean3,20)) && (jawLinesDiff3 <= percentOf(mean3,20))){
+					if (1-round((foreHead/faceLength),2) >= 0.3){ //must have 2 types rectangule or Oolong
+						console.log("length is significant longer than width")
+						// if ((foreHeadDiff3 <= percentOf(median3,25)) && (cheekBonesDiff3 <= percentOf(median3,25)) && (jawLinesDiff3 <= percentOf(median3,25))){
+						// 	typeFace = "Rectangle";
+						// 	console.log("Rectangle");
+						// 	return typeFace;	
+						// }
+						if (jawAngle > 60) {
 							typeFace = "Rectangle";
 							console.log("Rectangle");
-							//return typeFace;
+							return typeFace;
+						}
+						else if (jawAngle <= 60) {
+							typeFace = "Oblong";
+							console.log("Oblong");
+							return typeFace;
 						}
 					}
 
-
-					else if ((diff1 < percentOf(Math.min(faceLength,cheekBones),25)) && (diff2  < percentOf(Math.min(foreHead,jawLines),25))) {
-						if (diff1 > diff2){
+					else { 
+						console.log("length is not a third longer than width");
+						if (jawAngle > 60) {
+								typeFace = "Square";
+								console.log("Square");
+								return typeFace;
+							}
+						else if ((1-round((foreHead/faceLength),2) <= 0.2)&&(jawAngle <= 60)){
 							typeFace = "Round";
 							console.log("Round");
-							//return typeFace;
+							return typeFace;
+						
+							
 						}
-					}
+
+						
+
+						else if (1-round((foreHead/faceLength),2) > 0.2){
+							typeFace = "Oval";
+							console.log("Oval")
+							return typeFace;
+						}
+					
 					console.log(typeFace);
+
+
+					}
+					// if (maxParams == faceLength){
+					// 	console.log("maxParams == faceLength");
+					// 	if ((foreHeadDiff <= percentOf(median4,25)) && (cheekBonesDiff <= percentOf(median4,25)) && (jawLinesDiff <= percentOf(median4,25)) && (faceLengthDiff <= percentOf(median4,25))){
+					// 		typeFace = "Square";
+					// 		console.log("Square");
+					// 		return typeFace;
+					// 	}
+
+					
+						
+					// 	else if ((foreHeadDiff3 <= percentOf(median3,20)) && (cheekBonesDiff3 <= percentOf(median3,20)) && (jawLinesDiff3 <= percentOf(median3,20))){
+					// 		typeFace = "Rectangle";
+					// 		console.log("Rectangle");
+					// 		return typeFace;
+					// 	}
+
+
+					// 	else if ((diff1 < percentOf(Math.min(faceLength,cheekBones),25)) && (diff2  < percentOf(Math.min(foreHead,jawLines),25))) {
+					// 		if (diff1 > diff2){
+					// 			typeFace = "Round";
+					// 			console.log("Round");
+					// 			return typeFace;
+					// 		}
+					// 	}
+					
+					// 	else if ((faceLength > cheekBones)&&(foreHead > jawLines)){
+					// 		typeFace = "Oval";
+					// 		console.log("Oval")
+					// 		return typeFace;
+					// 	}
+					// }
+					// console.log(typeFace);
 				}
 
 				// detect if tracker fails to find a face
