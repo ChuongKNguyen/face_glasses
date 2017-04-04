@@ -46,6 +46,7 @@
 			<input type="button" class="btn" value="Face Params" onclick="printFaceParams()"> </input>
 			<h5>6.Classify your face</h5>
 			<input type="button" class="btn" value="Face Params" onclick="classifyFace()"> </input>
+			<button id="shareBtn">Share On Facebook</button>
 			<br/>
 			<!-- <input type="button" class="btn" value="print" onclick="printPositionVal()"> Print first 20 pixels values</input><br/> -->
 			<div id="text">
@@ -201,29 +202,9 @@
 					jawLines = faceParams.jawLines;
 					faceLength = faceParams.faceLength;
 					jawAngle = faceParams.jawAngle; 
-					var diff1  = Math.abs(faceLength - cheekBones);
-					var diff2 = Math.abs(foreHead - jawLines); 
-					var maxParams = Math.max(foreHead,cheekBones,jawLines,faceLength); 
-					var median4 = math.median(faceLength,jawLines,cheekBones,foreHead);
-					var median3 = math.median(jawLines,cheekBones,foreHead);
-					var mean3 = math.mean(jawLines,cheekBones,foreHead);
-					var foreHeadDiff = Math.abs(median4 - foreHead);
-					var cheekBonesDiff = Math.abs(median4 - cheekBones);
-					var jawLinesDiff = Math.abs(median4 - jawLines);
-					var faceLengthDiff = Math.abs(median4 - faceLength); 
 
-					var foreHeadDiff3 = Math.abs(median3 - foreHead);
-					var cheekBonesDiff3 = Math.abs(median3 - cheekBones);
-					var jawLinesDiff3 = Math.abs(median3 - jawLines);
-
-
-					if (1-round((foreHead/faceLength),2) >= 0.3){ //must have 2 types rectangule or Oolong
+					if (1-round((foreHead/faceLength),2) >= 0.3){ 
 						console.log("length is significant longer than width")
-						// if ((foreHeadDiff3 <= percentOf(median3,25)) && (cheekBonesDiff3 <= percentOf(median3,25)) && (jawLinesDiff3 <= percentOf(median3,25))){
-						// 	typeFace = "Rectangle";
-						// 	console.log("Rectangle");
-						// 	return typeFace;	
-						// }
 						if (jawAngle > 60) {
 							typeFace = "Rectangle";
 							console.log("Rectangle");
@@ -235,7 +216,6 @@
 							return typeFace;
 						}
 					}
-
 					else { 
 						console.log("length is not a third longer than width");
 						if (jawAngle > 62) {
@@ -246,13 +226,8 @@
 						else if ((1-round((foreHead/faceLength),2) <= 0.2)&&(jawAngle <= 62)){
 							typeFace = "Round";
 							console.log("Round");
-							return typeFace;
-						
-							
+							return typeFace;	
 						}
-
-						
-
 						else if (1-round((foreHead/faceLength),2) > 0.2){
 							typeFace = "Oval";
 							console.log("Oval")
@@ -263,39 +238,23 @@
 
 
 					}
-					// if (maxParams == faceLength){
-					// 	console.log("maxParams == faceLength");
-					// 	if ((foreHeadDiff <= percentOf(median4,25)) && (cheekBonesDiff <= percentOf(median4,25)) && (jawLinesDiff <= percentOf(median4,25)) && (faceLengthDiff <= percentOf(median4,25))){
-					// 		typeFace = "Square";
-					// 		console.log("Square");
-					// 		return typeFace;
-					// 	}
-
-					
-						
-					// 	else if ((foreHeadDiff3 <= percentOf(median3,20)) && (cheekBonesDiff3 <= percentOf(median3,20)) && (jawLinesDiff3 <= percentOf(median3,20))){
-					// 		typeFace = "Rectangle";
-					// 		console.log("Rectangle");
-					// 		return typeFace;
-					// 	}
-
-
-					// 	else if ((diff1 < percentOf(Math.min(faceLength,cheekBones),25)) && (diff2  < percentOf(Math.min(foreHead,jawLines),25))) {
-					// 		if (diff1 > diff2){
-					// 			typeFace = "Round";
-					// 			console.log("Round");
-					// 			return typeFace;
-					// 		}
-					// 	}
-					
-					// 	else if ((faceLength > cheekBones)&&(foreHead > jawLines)){
-					// 		typeFace = "Oval";
-					// 		console.log("Oval")
-					// 		return typeFace;
-					// 	}
-					// }
-					// console.log(typeFace);
 				}
+
+				window.fbAsyncInit = function() {
+					FB.init({
+						appId      : '1673576789618312',
+						xfbml      : true,
+						version    : 'v2.5'
+					});
+				};
+
+				(function(d, s, id){
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) {return;}
+					js = d.createElement(s); js.id = id;
+					js.src = "//connect.facebook.net/en_US/sdk.js";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
 
 				// detect if tracker fails to find a face
 				document.addEventListener("clmtrackrNotFound", function(event) {
@@ -304,6 +263,19 @@
 					$('#overlay1').addClass('hide');
 				}, false);
 				
+				document.getElementById('shareBtn').onclick = function() {
+
+					FB.ui({
+						display: 'popup',
+						method: 'share',
+						title: 'I got ' + typeFace + '! How about you?',
+						description: 'What kind of rock are you? Find out now!',
+						link: 'THIS IS A LINK TO YOUR QUIZ S PAGE ON YOUR WEBSITE',
+						picture: 'THIS PICTURE WILL BE THE FACEBOOK SHARE IMAGE',
+						href: 'THIS IS YOUR WEBSITE S HOME ADDRESS',
+
+					}, function(response){});
+				}	
 				// detect if tracker loses tracking of face
 				document.addEventListener("clmtrackrLost", function(event) {
 					ctrack.stop();
